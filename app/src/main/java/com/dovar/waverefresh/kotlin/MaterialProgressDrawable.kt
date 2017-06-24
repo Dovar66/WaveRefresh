@@ -19,12 +19,6 @@ import java.util.*
  * Created by Administrator on 2017-06-20.
  */
 class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(), Animatable {
-
-    private val LINEAR_INTERPOLATOR = LinearInterpolator()
-    private val END_CURVE_INTERPOLATOR = EndCurveInterpolator()
-    private val START_CURVE_INTERPOLATOR = StartCurveInterpolator()
-    private val EASE_INTERPOLATOR = AccelerateDecelerateInterpolator()
-
     @Retention(RetentionPolicy.CLASS)
     @IntDef(LARGE.toLong(), DEFAULT.toLong())
     annotation class ProgressDrawableSize
@@ -179,10 +173,10 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
                     // Offset the minProgressArc to where the endTrim is
                     // located.
                     val minArc = MAX_PROGRESS_ARC - minProgressArc
-                    val endTrim = startingEndTrim + minArc * START_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime)
+                    val endTrim = startingEndTrim + minArc * StartCurveInterpolator().getInterpolation(interpolatedTime)
                     ring.endTrim=endTrim
 
-                    val startTrim = startingTrim + MAX_PROGRESS_ARC * END_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime)
+                    val startTrim = startingTrim + MAX_PROGRESS_ARC * EndCurveInterpolator().getInterpolation(interpolatedTime)
                     ring.startTrim=startTrim
 
                     val rotation = startingRotation + 0.25f * interpolatedTime
@@ -195,7 +189,7 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
         }
         animation.repeatCount = Animation.INFINITE
         animation.repeatMode = Animation.RESTART
-        animation.interpolator = LINEAR_INTERPOLATOR
+        animation.interpolator = LinearInterpolator()
         animation.setAnimationListener(object : Animation.AnimationListener {
 
             override fun onAnimationStart(animation: Animation) {
