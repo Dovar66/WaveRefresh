@@ -837,8 +837,6 @@ public class WaveRefreshLayout extends ViewGroup implements ViewTreeObserver.OnP
 
     // 下拉箭头的转180°动画
     private RotateAnimation rotateAnimation;
-    // 均匀旋转动画
-    private RotateAnimation refreshingAnimation;
 
     // 上拉头
     private View loadmoreView;
@@ -907,12 +905,12 @@ public class WaveRefreshLayout extends ViewGroup implements ViewTreeObserver.OnP
         timer = new MyTimer(updateHandler);
         rotateAnimation = (RotateAnimation) AnimationUtils.loadAnimation(
                 context, R.anim.reverse_anim);
-        refreshingAnimation = (RotateAnimation) AnimationUtils.loadAnimation(
+        RotateAnimation mRefreshingAnimation = (RotateAnimation) AnimationUtils.loadAnimation(
                 context, R.anim.rotating);
         // 添加匀速转动动画
         LinearInterpolator lir = new LinearInterpolator();
         rotateAnimation.setInterpolator(lir);
-        refreshingAnimation.setInterpolator(lir);
+        mRefreshingAnimation.setInterpolator(lir);
     }
 
     private void hide() {
