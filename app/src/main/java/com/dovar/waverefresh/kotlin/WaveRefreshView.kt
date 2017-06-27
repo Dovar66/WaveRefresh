@@ -205,7 +205,7 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             mWaveView.manualRefresh()
             reInitCircleView()
             mCircleView.setBackgroundColor(Color.TRANSPARENT)
-            mCircleView.translationY = mWaveView.currentCircleCenterY + mCircleView.height / 2
+            mCircleView.translationY = mWaveView.mCurrentCircleCenterY + mCircleView.height / 2
             animateOffsetToCorrectPosition()
         }
         return false
@@ -303,7 +303,7 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
         val rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f
         mCircleView.setProgressRotation(rotation)
-        mCircleView.translationY = mWaveView.currentCircleCenterY
+        mCircleView.translationY = mWaveView.mCurrentCircleCenterY
 
         val seed = diffY / Math.min(measuredWidth, measuredHeight)
         val firstBounds = seed * (5f - 2 * seed) / 3.5f
@@ -354,7 +354,7 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         animator.duration = 500
         animator.interpolator = AccelerateDecelerateInterpolator()
         animator.addUpdateListener {
-            mCircleView.translationY = mWaveView.currentCircleCenterY + mCircleView.height / 2f
+            mCircleView.translationY = mWaveView.mCurrentCircleCenterY + mCircleView.height / 2f
         }
         animator.start()
         setRefreshing(true, true)
@@ -365,10 +365,10 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
-        if (!isEnabled() || canChildScrollUp()) {
+        if (!isEnabled || canChildScrollUp()) {
             return false
         }
-        mIsBeingDropped = mWaveView!!.isDisappearCircleAnimatorRunning
+        mIsBeingDropped = mWaveView.isDisappearCircleAnimatorRunning()
 
         val action = MotionEventCompat.getActionMasked(event)
         when (action) {
@@ -388,15 +388,15 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
                 val diffY = event.y - mFirstTouchDownPointY
                 val waveHeightThreshold = diffY * (5f - 2 * diffY / Math.min(getMeasuredWidth(), getMeasuredHeight())) / 1000f
-                mWaveView!!.startWaveAnimation(waveHeightThreshold)
+                mWaveView.startWaveAnimation(waveHeightThreshold)
                 if (mActivePointerId == INVALID_POINTER) {
                     return false
                 }
 
                 if (!isRefreshing()) {
-                    mCircleView!!.setProgressStartEndTrim(0f, 0f)
-                    mCircleView!!.showArrow(false)
-                    mCircleView!!.setVisibility(View.GONE)
+                    mCircleView.setProgressStartEndTrim(0f, 0f)
+                    mCircleView.showArrow(false)
+                    mCircleView.visibility = View.GONE
                 }
                 mActivePointerId = INVALID_POINTER
                 return false
@@ -407,9 +407,9 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                     return false
                 }
                 if (!isRefreshing()) {
-                    mCircleView!!.setProgressStartEndTrim(0f, 0f)
-                    mCircleView!!.showArrow(false)
-                    mCircleView!!.setVisibility(View.GONE)
+                    mCircleView.setProgressStartEndTrim(0f, 0f)
+                    mCircleView.showArrow(false)
+                    mCircleView.visibility = View.GONE
                 }
                 mActivePointerId = INVALID_POINTER
                 return false
@@ -590,12 +590,12 @@ class WaveRefreshView(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             mNotify = false
 
             mIsManualRefresh = true
-            if (mWaveView!!.currentCircleCenterY == 0f) {
+            if (mWaveView!!.mCurrentCircleCenterY == 0f) {
                 return
             }
             mWaveView!!.manualRefresh()
             reInitCircleView()
-            mCircleView!!.translationY = mWaveView!!.currentCircleCenterY + mCircleView!!.getHeight() / 2
+            mCircleView!!.translationY = mWaveView!!.mCurrentCircleCenterY + mCircleView!!.getHeight() / 2
             animateOffsetToCorrectPosition()
         } else {
             setRefreshing(refreshing, false /* notify */)

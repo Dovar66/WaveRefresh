@@ -18,7 +18,7 @@ import java.util.*
 /**
  * Created by Administrator on 2017-06-20.
  */
-class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(), Animatable {
+class MaterialProgressDrawable(context: Context?, val parent: View?) : Drawable(), Animatable {
     @Retention(RetentionPolicy.CLASS)
     @IntDef(LARGE.toLong(), DEFAULT.toLong())
     annotation class ProgressDrawableSize
@@ -35,7 +35,7 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
     /** Canvas rotation in degrees.  */
     private var mRotation: Float = 0.0f
 
-    private var mResource: Resources = context.resources
+    private var mResource: Resources? = context?.resources
     private var mWidth: Double = 0.0
     private var mHeight: Double = 0.0
     lateinit var mAnimation: Animation
@@ -68,8 +68,8 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
 
     fun setSizeParameters(progressCircleWidth: Double, progressCircleHeight: Double, centerRadius: Double, strokeWidth: Double, arrowWidth: Float, arrowHeight: Float) {
         val ring = mRing
-        val metrics = mResource.displayMetrics
-        val screenDensity = metrics.density
+        val metrics = mResource?.displayMetrics
+        val screenDensity = metrics?.density ?: return
 
         mWidth = progressCircleWidth * screenDensity
         mHeight = progressCircleHeight * screenDensity
@@ -81,7 +81,7 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
         ring.setInsets(mWidth.toInt(), mHeight.toInt())
     }
 
-    fun updateSizes(size:Int) {
+    fun updateSizes(size: Int) {
         if (size == LARGE)
             setSizeParameters(CIRCLE_DIAMETER_LARGE.toDouble(), CIRCLE_DIAMETER_LARGE.toDouble(), CENTER_RADIUS_LARGE.toDouble(),
                     STROKE_WIDTH_LARGE.toDouble(), ARROW_WIDTH_LARGE.toFloat(), ARROW_HEIGHT_LARGE.toFloat())
@@ -120,18 +120,18 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
         // Already showing some part of the ring
         if (mRing.endTrim != mRing.startTrim) {
             mFinishing = true
-            mAnimation.setDuration((ANIMATION_DURATION / 2).toLong())
-            parent.startAnimation(mAnimation)
+            mAnimation.duration = (ANIMATION_DURATION / 2).toLong()
+            parent!!.startAnimation(mAnimation)
         } else {
             mRing.setColorIndex(0)
             mRing.resetOriginals()
-            mAnimation.setDuration(ANIMATION_DURATION.toLong())
-            parent.startAnimation(mAnimation)
+            mAnimation.duration = ANIMATION_DURATION.toLong()
+            parent!!.startAnimation(mAnimation)
         }
     }
 
     override fun stop() {
-        parent.clearAnimation()
+        parent!!.clearAnimation()
         setRotation(0f)
         mRing.setShowArrow(false)
         mRing.setColorIndex(0)
@@ -141,6 +141,60 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
     internal fun setRotation(rotation: Float) {
         mRotation = rotation
         invalidateSelf()
+    }
+
+    /**
+     * Update the background color of the circle image view.
+     */
+    fun setBackgroundColor(color: Int) {
+        mRing.setBackgroundColor(color)
+    }
+
+    /**
+     * @param show Set to true to display the arrowhead on the progress spinner.
+     */
+    fun showArrow(show: Boolean) {
+        mRing.setShowArrow(show)
+    }
+
+    /**
+     * @param scale Set the scale of the arrowhead for the spinner.
+     */
+    fun setArrowScale(scale: Float) {
+        mRing.setArrowScale(scale)
+    }
+
+    /**
+     * Set the start and end trim for the progress spinner arc.
+
+     * @param startAngle start angle
+     * *
+     * @param endAngle end angle
+     */
+    fun setStartEndTrim(startAngle: Float, endAngle: Float) {
+        mRing.startTrim = startAngle
+        mRing.endTrim = endAngle
+    }
+
+    /**
+     * Set the amount of rotation to apply to the progress spinner.
+
+     * @param rotation Rotation is from [0..1]
+     */
+    fun setProgressRotation(rotation: Float) {
+        mRing.rotation = rotation
+    }
+
+    /**
+     * Set the colors used in the progress animation from color resources.
+     * The first color will also be the color of the bar that grows in response
+     * to a user swipe gesture.
+
+     * @param colors
+     */
+    fun setColorSchemeColors(vararg colors: Int) {
+        mRing.setColors(colors)
+        mRing.setColorIndex(0)
     }
 
     private fun applyFinishTranslation(interpolatedTime: Float, ring: Ring) {
@@ -174,13 +228,13 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
                     // located.
                     val minArc = MAX_PROGRESS_ARC - minProgressArc
                     val endTrim = startingEndTrim + minArc * StartCurveInterpolator().getInterpolation(interpolatedTime)
-                    ring.endTrim=endTrim
+                    ring.endTrim = endTrim
 
                     val startTrim = startingTrim + MAX_PROGRESS_ARC * EndCurveInterpolator().getInterpolation(interpolatedTime)
-                    ring.startTrim=startTrim
+                    ring.startTrim = startTrim
 
                     val rotation = startingRotation + 0.25f * interpolatedTime
-                    ring.rotation=rotation
+                    ring.rotation = rotation
 
                     val groupRotation = 720.0f / NUM_POINTS * interpolatedTime + 720.0f * (mRotationCount / NUM_POINTS)
                     setRotation(groupRotation)
@@ -203,7 +257,7 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
             override fun onAnimationRepeat(animation: Animation) {
                 ring.storeOriginals()
                 ring.goToNextColor()
-                ring.startTrim=ring.endTrim
+                ring.startTrim = ring.endTrim
                 if (mFinishing) {
                     // finished closing the last ring from the swipe gesture; go
                     // into progress mode
@@ -488,7 +542,7 @@ class MaterialProgressDrawable(context: Context, val parent: View) : Drawable(),
             }
 
             private fun invalidateSelf() {
-                mCallback.invalidateDrawable(null!!)
+                mCallback.invalidateDrawable(MaterialProgressDrawable(null,null))
             }
         }
     }
